@@ -54,6 +54,10 @@ export class ControlesController {
   }
 
 
+  @MessagePattern('subetapas.obtenerSubetapas')
+  async obtenerSubetapas(@Payload() payload: any) {
+    return await this.controlService.obtenerSubetapas();
+  }
 
   //------------- TAREAS ----------------
   @MessagePattern('tareas.obtenerTarea')

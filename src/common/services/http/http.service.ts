@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
+import { handlerError } from 'src/common/helpers/helper';
 
 @Injectable()
 export class HttpService {
@@ -11,7 +12,7 @@ export class HttpService {
             return response;
         } catch (err) {
             console.log(err);
-            throw err;
+            handlerError(err);
         }
     }
 
@@ -24,7 +25,7 @@ export class HttpService {
         }
         catch (err) {
             console.log(err)
-            throw err;
+            handlerError(err);
         }
 
     }
@@ -35,7 +36,7 @@ export class HttpService {
             return response;
         } catch (err) {
             console.log(err);
-            throw err;
+            handlerError(err);
         }
     }
 
@@ -46,7 +47,7 @@ export class HttpService {
             return response;
         } catch (err) {
             console.log(err);
-            throw err;
+            handlerError(err);
         }
 
     }

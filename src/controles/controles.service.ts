@@ -8,7 +8,7 @@ import { Etapa } from './etapas/entities/etapa.entity';
 
 @Injectable()
 export class ControlesService {
-
+ 
   constructor(
     private readonly etapaService: EtapasService,
     private readonly subetapaService: SubetapasService,
@@ -48,6 +48,12 @@ export class ControlesService {
   }
   async obtenerSubetapaCompleta(subetapaId: any) {
     return await this.subetapaService.obtenerSubetapaCompleta(subetapaId)
+  }
+
+
+   async obtenerSubetapas() {
+     const subetapas = await this.subetapaService.obtenerSubEtapas();
+    return subetapas?.map( sub => ({ id: sub.id, descripcion: sub.descripcion }))
   }
 
   //============ TAREAS =======

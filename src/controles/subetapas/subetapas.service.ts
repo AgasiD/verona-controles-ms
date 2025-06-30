@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SubEtapa } from './entities/subetapa.entity';
-import { getDataFromJSON, handlerError, handlerHttpError } from '../../common/helpers/helper';
+import { getDataFromJSON, handlerError } from '../../common/helpers/helper';
 import { CreateSubetapaDTO } from './dto/create-subetapa.dto';
 import { TareasService } from '../tareas/tareas.service';
 import { HttpService } from 'src/common/services/http/http.service';
@@ -19,7 +19,7 @@ export class SubetapasService {
         this.uri = process.env.GOOGLE_URI + '/subetapa'
     }
 
-    async obtenerSubetapaCompleta(subetapaId: any) {
+    async obtenerSubetapaCompleta(subetapaId) {
 
         let subetapa = await this.obtenerSubEtapa(subetapaId);
         let tareas = await this.tareaService.obtenerTareasDefaultBySubetapa(subetapaId)
@@ -44,50 +44,50 @@ export class SubetapasService {
             handlerError(err)
         }
     }
-    async obtenerSubEtapas(): Promise<SubEtapa[]> {
+    async obtenerSubEtapas() {
         try {
             return await this.cargarSubEtapas();
         } catch (err) {
-            throw err
+            handlerError(err)
         }
     }
 
-    async obtenerSubEtapasDefault(): Promise<SubEtapa[]> {
+    async obtenerSubEtapasDefault() {
         try {
             return (await this.cargarSubEtapas()).filter(sub => sub.isDefault);
         } catch (err) {
-            throw err
+            handlerError(err)
         }
     }
-    async obtenerSubEtapasExtras(): Promise<SubEtapa[]> {
+    async obtenerSubEtapasExtras() {
         try {
             return (await this.cargarSubEtapas()).filter(sub => !sub.isDefault);
         } catch (err) {
-            throw err
+            handlerError(err)
         }
     }
 
-    async obtenerSubEtapasDefaultByEtapa(etapaId): Promise<SubEtapa[]> {
+    async obtenerSubEtapasDefaultByEtapa(etapaId) {
         try {
             return (await this.cargarSubEtapas()).filter(sub => sub.etapa === etapaId);
         } catch (err) {
-            throw err
+            handlerError(err)
         }
     }
 
-    async obtenerSubEtapasExtrastByEtapa(etapaId): Promise<SubEtapa[]> {
+    async obtenerSubEtapasExtrastByEtapa(etapaId) {
         try {
-            return (await this.obtenerSubEtapasExtras()).filter(sub => sub.etapa === etapaId);
+            return (await this.obtenerSubEtapasExtras())!.filter(sub => sub.etapa === etapaId);
         } catch (err) {
-            throw err
+            handlerError(err)
         }
     }
 
-    async cargarSubEtapas(): Promise<SubEtapa[]> {
+    async cargarSubEtapas() {
         let subetapas: SubEtapa[] = [];
         let response = (await this.http.get(`${this.uri}.json`))
-        if (response.status > 210) handlerHttpError(response)
-        let datos = response.data;
+        if (response!.status > 210) handlerError(response)
+        let datos = response!.data;
         if (datos != null) subetapas = getDataFromJSON(datos).map(data => new SubEtapa({ id: data.id, ...data.attributes }));
         return subetapas;
     }
@@ -95,19 +95,19 @@ export class SubetapasService {
 
     async obtenerSubEtapa(subetapaId) {
         let subetapas = await this.obtenerSubEtapas();
-        return subetapas.find(subetapa => subetapa.id == subetapaId);
+        return subetapas?.find(subetapa => subetapa.id == subetapaId);
     }
 
     async grabarSubEtapa(subetapa: SubEtapa) {
         let response = await this.http.post(`${this.uri}.json`, {}, subetapa);
-        if (response.status > 210) handlerHttpError(response)
-        return response.data;
+        if (response!.status > 210) handlerError(response)
+        return response!.data;
     }
 
     async modificarSubEtapa(subetapa: SubEtapa) {
         let response = await this.http.post(`${this.uri}/${subetapa.id}.json`, {}, subetapa);
-        if (response.status > 210) handlerHttpError(response)
-        return response.data;
+        if (response!.status > 210) handlerError(response)
+        return response!.data;
     }
 
     async eliminarSubetapa(subetapaId) {

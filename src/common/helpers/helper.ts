@@ -7,28 +7,29 @@ var jwt = require('jsonwebtoken');
 
 
 
-export function  handlerError(err: any) {
-
-  throw err
-
-}
-
-
-
-export function  handlerHttpError(err: AxiosResponse) {
-  switch( err.status ){
-    case 404: 
-    throw new NotFoundException(err.statusText);
-    break
-    case 401: 
-    throw new UnauthorizedException(err.statusText);
-    break;
-    case 403: 
-    throw new ForbiddenException(err.statusText);
-    default: 
-    throw new HttpException(`Estado ${err.status} - ${err.statusText}`, err.status)
+export function handlerError(err: any) {
+  let exception_info;
+  let custom_error = err;
+  if( err.error.status ) {
+    custom_error = err.error;
   }
-  
+
+  switch (custom_error.status) {
+    case 404:
+      exception_info = { status: 404, message: err.statusText }
+      break
+    case 401:
+      exception_info = { status: 401, message: err.statusText }
+      break;
+    case 403:
+      exception_info = { status: 403, message: err.statusText }
+      break;
+    default:
+      exception_info = { status: 500, message: `Estado ${err.status} - ${err.statusText}`}  
+  }
+
+  throw new RpcException(exception_info)
+
 }
 
 
@@ -87,11 +88,11 @@ export async function generarJWT(id, expires = 6) {
   })
 }
 
-export async function encriptarPassword (password) {
+export async function encriptarPassword(password) {
   const bcrypt = require('bcrypt');
   try {
     const saltRounds = 10; // cuanto mayor el número, más seguro (y más lento)
-    const hash = await bcrypt .hash(password, saltRounds);
+    const hash = await bcrypt.hash(password, saltRounds);
     return hash;
   } catch (err) {
     throw new Error('Error al encriptar la contraseña');

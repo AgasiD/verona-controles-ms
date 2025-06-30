@@ -3,7 +3,7 @@ import { TareasService } from '../tareas/tareas.service';
 import { SubetapasService } from '../subetapas/subetapas.service';
 import { Etapa } from './entities/etapa.entity';
 
-import { getDataFromJSON, handlerHttpError } from '../../common/helpers/helper';
+import { getDataFromJSON, handlerError } from '../../common/helpers/helper';
 import { Tarea } from '../tareas/entities/tarea.entity';
 import { HttpService } from 'src/common/services/http/http.service';
 
@@ -22,8 +22,8 @@ export class EtapasService {
     }
 
     async grabarEtapa(etapa: Etapa) {
-        let response = await this.http.post(`${this.uri}.json`, {}, etapa);
-        if (response.status >= 300) handlerHttpError(response)
+        let response = (await this.http.post(`${this.uri}.json`, {}, etapa))!;
+        if (response.status >= 300) handlerError(response)
         return response.data;
     }
 
@@ -35,11 +35,11 @@ export class EtapasService {
 
 
     async obtenerEtapasDefault() {
-        let etapas = (await this.obtenerEtapas());
+        let etapas = (await this.obtenerEtapas()).filter( etapa => etapa.isDefault);
         let subetapas = (await this.subetapasService.obtenerSubEtapasDefault());
         let tareas = await this.tareasService.obtenerTareasDefault();
         etapas.forEach(etapa => {
-            let subs = subetapas.filter(sub => sub.etapa.includes(etapa.id)).sort((a, b) => {
+            let subs = subetapas!.filter(sub => sub.etapa.includes(etapa.id)).sort((a, b) => {
                 return a.orden - b.orden;
             })
             subs.forEach(sub => {
@@ -64,7 +64,7 @@ export class EtapasService {
         let etapa = (await this.obtenerEtapa(etapaId));
         let subetapas = (await this.subetapasService.obtenerSubEtapasDefaultByEtapa(etapaId));
         let tareas = await this.tareasService.obtenerTareasDefault();
-        let subs = subetapas.filter(sub => sub.etapa.includes(etapa.id)).sort((a, b) => { return a.orden - b.orden; })
+        let subs = subetapas!.filter(sub => sub.etapa.includes(etapa.id)).sort((a, b) => { return a.orden - b.orden; })
         subs.forEach(sub => {
             let tareasSubEtapa = tareas
                 .filter(tarea => tarea.subetapa.includes(sub.id))
@@ -97,8 +97,8 @@ export class EtapasService {
     cargarEtapas = async () => {
         let etapas: Etapa[] = [];
         let response = await this.http.get(`${this.uri}.json`);
-        if (response.status > 210) handlerHttpError(response)
-        let datos = response.data;
+        if (response!.status > 210) handlerError(response)
+        let datos = response!.data;
         if (datos != null) {
             etapas = getDataFromJSON(datos)
                 .map(data => new Etapa({

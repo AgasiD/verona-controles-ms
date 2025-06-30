@@ -55,13 +55,14 @@ export class TareasService {
     async grabarTarea(tarea: Tarea) {
         
             let response = await this.http.post(`${this.uri}.json`, {}, tarea);
-            if(response.status >= 300 )throw new RpcException({ status: response.status, message: response.statusText});
-            return response.data;
+            if(response!.status >= 300 )
+                throw new RpcException({ status: response!.status, message: response!.statusText});
+            return response!.data;
         
     }
     async cargarTareas(): Promise<Tarea[]>{
         let tareas: Tarea[] = [];
-        let datos = (await this.http.get(`${this.uri}.json`)).data;
+        let datos = (await this.http.get(`${this.uri}.json`))!.data;
         tareas = getDataFromJSON(datos).map(data =>  new Tarea(data.id, data.attributes));
         return tareas;
     }
