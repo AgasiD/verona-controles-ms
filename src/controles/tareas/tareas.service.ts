@@ -13,7 +13,7 @@ import { RpcException } from '@nestjs/microservices';
 export class TareasService {
 
     uri: string
-
+    tareas: Tarea[] = [];
     constructor(private readonly http: HttpService) {
         this.uri = process.env.GOOGLE_URI + '/tarea'
     }
@@ -61,10 +61,11 @@ export class TareasService {
         
     }
     async cargarTareas(): Promise<Tarea[]>{
-        let tareas: Tarea[] = [];
+        
+        if(this.tareas.length > 0) return this.tareas;  
         let datos = (await this.http.get(`${this.uri}.json`))!.data;
-        tareas = getDataFromJSON(datos).map(data =>  new Tarea(data.id, data.attributes));
-        return tareas;
+        this.tareas = getDataFromJSON(datos).map(data =>  new Tarea(data.id, data.attributes));
+        return this.tareas;
     }
 
     async actualizarTarea(tarea: Tarea, id: string) {

@@ -11,7 +11,7 @@ import { HttpService } from 'src/common/services/http/http.service';
 export class SubetapasService {
 
     uri: string;
-
+    subetapas: SubEtapa[] = [];
     constructor(
         private readonly http: HttpService,
         private readonly tareaService: TareasService
@@ -84,12 +84,13 @@ export class SubetapasService {
     }
 
     async cargarSubEtapas() {
-        let subetapas: SubEtapa[] = [];
+        
+        if(this.subetapas.length > 0) return this.subetapas;
         let response = (await this.http.get(`${this.uri}.json`))
         if (response!.status > 210) handlerError(response)
         let datos = response!.data;
-        if (datos != null) subetapas = getDataFromJSON(datos).map(data => new SubEtapa({ id: data.id, ...data.attributes }));
-        return subetapas;
+        if (datos != null) this.subetapas = getDataFromJSON(datos).map(data => new SubEtapa({ id: data.id, ...data.attributes }));
+        return this.subetapas;
     }
 
 
